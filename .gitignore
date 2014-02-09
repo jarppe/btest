@@ -1,0 +1,13 @@
+/target/
+/lib/
+/classes/
+/bin
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+.lein-deps-sum
+.project
+.classpath
+.settings
+\~\$*
