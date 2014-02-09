@@ -22,10 +22,17 @@
       {:status 200 :body {:status "command" :command (:name command) :args (:args command)}})
     {:status 200 :body {:status "timeout"}}))
 
-(defn command [c & args]
+(defn submit [command-name args]
   (let [p (promise)]
-    (.put command-queue {:name c
-                         :args args
-                         :promise p
-                         :created (System/currentTimeMillis)})
+    (.put command-queue {:promise  p
+                         :name     command-name
+                         :args     args
+                         :created  (System/currentTimeMillis)})
     p))
+
+(defn execute [command-name args & [file line]]
+  (let [p (submit command-name args)
+        r (deref p 2000 ::timeout)]
+    (if (= r ::timeout)
+      (throw (RuntimeException. (format "timeout: [%s:%d] %s" (or file "NO_SOURCE_PATH") (or line 0) command-name)))
+      r)))

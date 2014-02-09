@@ -1,20 +1,38 @@
 "use strict";
-define(["jquery", "lodash"], function($, _) {
+(function (factory) {
+  if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
+    factory(require("jquery"));
+  } else if (typeof define === "function" && define.amd) {
+    define(["jquery"], factory);
+  } else {
+    /* global jQuery */
+    factory(jQuery);
+  }
+}(function($) {
   
-  function exists(e)   { return e && e.length; }
-  function visible(e)  { return exists(e) && e.is(":visible"); }
-  function disabled(e) { return exists(e) && e.prop("disabled"); }
-  function enabled(e)  { return !disabled(e); }
+  function every(coll, p) {
+    var i, len = coll.length;
+    for (i = 0; i < len; i++) {
+      if (!p(coll[i])) return false;
+    }
+    return true;
+  }
+  
+  function exists(e)    { return e && e.length; }
+  function visible(e)   { return exists(e) && e.is(":visible"); }
+  function invisible(e) { return !visible(e); }
+  function disabled(e)  { return exists(e) && e.prop("disabled"); }
+  function enabled(e)   { return !disabled(e); }
   
   function doWaitUntil(selector, checks, d, attempts) {
     var element = selector && $(selector);
-    if (_.every(checks, function(check) { return check(element); })) {
+    if (every(checks, function(check) { return check(element); })) {
       d.resolve(element);
     } else {
-      if (attempts >= 500) {
+      if (attempts >= 100) {
         d.reject();
       } else {
-        setTimeout(function() { doWaitUntil(selector, d, checks, attempts + 1); }, 10);
+        setTimeout(function() { doWaitUntil(selector, checks, d, attempts + 1); }, 10);
       }
     }
   }
@@ -41,6 +59,11 @@ define(["jquery", "lodash"], function($, _) {
         .done(function() { d.resolve(); })
         .fail(d.reject);
     },
+    invisible: function(d, selector) {
+      waitUntil(selector, invisible)
+        .done(function() { d.resolve(); })
+        .fail(d.reject);
+    },
     enabled: function(d, selector) {
       waitUntil(selector, enabled)
         .done(function() { d.resolve(); })
@@ -56,7 +79,7 @@ define(["jquery", "lodash"], function($, _) {
         .done(function(element) { element[0].click(); d.resolve(); })
         .fail(d.reject);
     },
-    hash: function(d, h) {
+    "url-hash": function(d, h) {
       waitUntil(null, function() { return hash() === h; })
         .done(function() { d.resolve(); })
         .fail(d.reject);
@@ -66,19 +89,19 @@ define(["jquery", "lodash"], function($, _) {
         .done(function() { d.resolve(); })
         .fail(d.reject);
     },
-    setHash: function(d, h) {
+    "set-hash": function(d, h) {
       hash(h);
       d.resolve();
     },
-    getHash:  function(d) {
+    "get-hash":  function(d) {
       d.resolve(hash());
     },
-    getValue: function(d, selector) {
+    "get-value": function(d, selector) {
       waitUntil(selector, visible)
         .done(function(element) { d.resolve({value: element.val()}); })
         .fail(d.reject);
     },
-    setValue: function(d, selector, value) {
+    "set-value": function(d, selector, value) {
       waitUntil(selector, visible)
         .done(function(element) { element.val(value).change(); d.resolve(); })
         .fail(d.reject);
@@ -89,7 +112,7 @@ define(["jquery", "lodash"], function($, _) {
   };
 
   var getNextCommand = {
-    url:          "/dev/brotest/command",
+    url:          "/dev/btest",
     type:         "POST",
     data:         null,
     contentType:  "application/json; charset=utf-8",
@@ -139,4 +162,4 @@ define(["jquery", "lodash"], function($, _) {
 
   run();
   
-});
+}));

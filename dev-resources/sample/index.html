@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>BTest sample app</title>
+    <style type="text/css">
+      .page { display: none; }
+      .error-msg { display: none; background: red; color: white; padding: 20px; }
+    </style>
+  </head>
+  
+  <body>
+    
+    <div id="login" class="page">
+      <form>
+        <div>
+          <label for="login-username">Username:</label>
+          <input id="login-username" type="text"/>
+        </div>
+        <div>
+          <label for="login-username">Password:</label>
+          <input id="login-password" type="password"/>
+        </div>
+        <div>
+          <button type="submit">Login</button>
+        </div>
+      </form>
+      <div class="error-msg">
+        Username or password was incorrect, please try again.
+      </div>
+    </div>
+    
+    <div id="todo" class="page">
+      <h1>TODO for user <span class="username"></span></h1>
+      <ul class="todo">
+      </ul>
+      <form class="new-todo">
+        <label for="new-todo-text">Add:</label>
+        <input id="new-todo-text" type="text"/>
+        <button type="submit">Add</button>
+        <div>
+          <a href="#" class="logout">logout</a>
+        </div>
+      </form>
+    </div>
+    
+  </body>
+  
+  <script src="http://code.jquery.com/jquery-2.1.0.min.js"></script> 
+  <script src="todo.js"></script>
+  <script src="/dev/btest.js"></script>
+  
+</html>
