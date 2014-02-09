@@ -1,4 +1,4 @@
-(defproject jarppe.btest "0.1.0-SNAPSHOT"
+(defproject jarppe.btest "0.0.1"
   :dependencies [[org.clojure/clojure "1.5.1"]]
   :profiles {:dev {:dependencies [[ring "1.2.1"]
                                   [ring/ring-json "0.2.0"]
