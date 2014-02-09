@@ -2,13 +2,10 @@
   (:refer-clojure :exclude [hash])
   (:require [jarppe.btest.core :as core]))
 
-(defmacro ^:private defcommand [command-name & [args]]
-  `(defmacro ~command-name [~@args]
-     (core/execute
-       ~(name command-name)
-       ~args
-       (clojure.core/unquote (quote *file*))
-       (clojure.core/unquote (quote (:line (meta &form)))))))
+(defmacro ^:private defcommand [command-name args]
+  (let [args (vec args)]
+    (list 'clojure.core/defmacro command-name args
+      (list 'list 'jarppe.btest.core/execute (str command-name) args '*file* '(:line (meta &form))))))
 
 (defcommand exists     [selector])
 (defcommand visible    [selector])
