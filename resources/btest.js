@@ -76,7 +76,7 @@
     },
     click: function(d, selector) {
       waitUntil(selector, visible, enabled)
-        .done(function(element) { element[0].click(); d.resolve(); })
+        .done(function(element) { console.log("click", element, element[0]); element[0].click(); d.resolve(); })
         .fail(d.reject);
     },
     "url-hash": function(d, h) {
@@ -114,14 +114,14 @@
   var getNextCommand = {
     url:          "/dev/btest",
     type:         "POST",
-    data:         null,
+    data:         {},
     contentType:  "application/json; charset=utf-8",
     dataType:     "json"
   };
   
   function run() {
     $.ajax(getNextCommand).then(handleResponse, handleFailure);
-    getNextCommand.data = null;
+    getNextCommand.data = {};
     return null;
   }
   
@@ -156,7 +156,6 @@
   }
 
   function handleFailure() {
-    console.log("getCommand: fail:", arguments);
     setTimeout(run, 10000);
   }
 
