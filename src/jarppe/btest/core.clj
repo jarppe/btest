@@ -1,4 +1,5 @@
 (ns jarppe.btest.core
+  (:require [slingshot.slingshot :refer [throw+]])
   (:import [java.util.concurrent LinkedBlockingDeque TimeUnit]))
 
 (set! *warn-on-reflection* true)
@@ -12,7 +13,6 @@
   nil)
 
 (defn browser-command [response]
-  (println "INCOMING:" response)
   (when response
     (when-let [c @current-command]
       (deliver (:promise c)
@@ -35,11 +35,20 @@
                          :created  (System/currentTimeMillis)})
     p))
 
-(defmacro fail! [message & [response]]
-  `(throw (clojure.lang.ExceptionInfo.
-            (format "%s: [%s:%d] %s: %s" (apply str ~message) (or ~'file "NO_SOURCE_PATH") (or ~'line 0) ~'command-name (str ~response))
-            {:type     :error
-             :response ~response})))
+(defmacro fail! [fail-type message & [response]]
+  `(throw+ {::source       ::btest
+            :command-name  ~'command-name
+            :command       ~'r
+            :file          ~'file
+            :line          ~'line
+            :type          ~fail-type
+            :message       ~message
+            :response      ~response
+            :desc          (format "%s: [%s:%d] %s: %s"
+                             (apply str ~message)
+                             (or ~'file "NO_SOURCE_PATH") (or ~'line 0)
+                             ~'command-name
+                             (str ~response))}))
 
 (def ^:private timeout {:response {:status "timeout"}})
 
@@ -48,7 +57,7 @@
         r (deref p 2000 timeout)
         s (get-in r [:response :status])]
     (condp = s
-      "timeout" (fail! "timeout")
-      "fail"    (fail! "fail" (get-in r [:response :result]))
+      "timeout" (fail! :timeout "timeout")
+      "fail"    (fail! :fail "fail" (get-in r [:response :result]))
       "ok"      r
-      (fail! (str "unexpected status: '" s "'")))))
+      (fail! :error (str "unexpected status: '" s "'")))))

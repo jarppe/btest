@@ -1,5 +1,6 @@
 (ns jarppe.btest
-  (:require [jarppe.btest.core :as core]
+  (:require [slingshot.slingshot :refer [try+]]
+            [jarppe.btest.core :as core]
             [jarppe.btest.commands :as c]
             [jarppe.btest.util :as u]
             [jarppe.btest.report :as r]))
@@ -11,9 +12,11 @@
 (defmacro deftest [test-name & body]
   `(do
      (r/test-start ~(name test-name))
-     (try
-       ~@body
+     (try+
+       (do ~@body)
        (r/test-success)
-       (catch Exception e#
-         (r/test-fail e#)))
+       (catch [:core/source :core/btest] e#
+         (r/test-fail e#))
+       (catch Throwable e#
+         (r/test-error e#)))
      (r/test-end)))
