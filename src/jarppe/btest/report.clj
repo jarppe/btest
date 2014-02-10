@@ -9,7 +9,7 @@
 (defn test-fail [result]
   (println "Fail:" result))
 
-(defn test-error [^Throwable e]
+(defn test-error [result ^Throwable e]
   (println "Error:" (class e) (.getMessage e))
   (.printStackTrace e))
 

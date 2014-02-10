@@ -15,8 +15,8 @@
      (try+
        (do ~@body)
        (r/test-success)
-       (catch [:core/source :core/btest] e#
+       (catch [:jarppe.btest.core/source :jarppe.btest.core/btest] e#
          (r/test-fail e#))
-       (catch Throwable e#
-         (r/test-error e#)))
+       (catch Object e#
+         (r/test-error e# (:throwable ~'&throw-context))))
      (r/test-end)))
