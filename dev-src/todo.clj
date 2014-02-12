@@ -29,7 +29,7 @@
 (def app
   (-> (routes
         (GET  "/" [] (resource "sample/index.html" "text/html"))
-        (GET  "/dev/btest.js" [] (resource "btest.js" "text/javascript"))
+        (GET  "/dev/btest.js" [] (resource "js/btest.js" "text/javascript"))
         (POST "/dev/btest" {resp :body} (btest/browser-command resp))
         (route/resources "/" {:root "sample"})
         (route/not-found "Not found"))
