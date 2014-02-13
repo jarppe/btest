@@ -10,6 +10,8 @@
   }
 }(function($) {
   
+  console.log("btest: initializing...");
+  
   function every(coll, p) {
     var i, len = coll.length;
     for (i = 0; i < len; i++) {
@@ -56,8 +58,8 @@
     },
     visible: function(d, selector) {
       waitUntil(selector, visible)
-        .done(function() { d.resolve(); })
-        .fail(d.reject);
+        .done(function() { console.log("visible: ok"); d.resolve(); })
+        .fail(function() { console.log("visible: fail"); d.reject(); });
     },
     invisible: function(d, selector) {
       waitUntil(selector, invisible)
