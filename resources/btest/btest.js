@@ -134,17 +134,17 @@
   var getNextCommand = {
     url:          "/btest",
     type:         "POST",
-    data:         {},
     contentType:  "application/json; charset=utf-8",
     dataType:     "json"
   };
   
   function run() {
     idle();
+    getNextCommand.data = JSON.stringify(getNextCommand.data || {});
     $.ajax(getNextCommand)
       .always(testing)
       .then(handleResponse, handleFailure);
-    getNextCommand.data = {};
+    getNextCommand.data = null;
     return null;
   }
   
@@ -171,11 +171,11 @@
   }
   
   function success(result) {
-    getNextCommand.data = JSON.stringify({status: "ok", result: result});
+    getNextCommand.data = {status: "ok", result: result};
   }
 
   function failed(result) {
-    getNextCommand.data = JSON.stringify({status: "fail", result: result});
+    getNextCommand.data = {status: "fail", result: result};
   }
 
   function handleFailure() {
@@ -183,9 +183,5 @@
   }
 
   run();
-  
-  window.btest = {
-      
-  };
   
 }));
