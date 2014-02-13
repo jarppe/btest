@@ -1,4 +1,4 @@
-(ns todo
+(ns todo.todo-app
   (:require [clojure.java.io :as io]
             [clojure.walk :refer [keywordize-keys]]
             [ring.adapter.jetty :as jetty]
@@ -18,11 +18,13 @@
                         (io/reader :encoding (or (:character-encoding request) "utf-8"))
                         json/parse-stream
                         keywordize-keys))
-          response (handler (assoc request :body json-body :json json-body))
-          response-body (:body response)]
-      (if (or (map? response-body) (sequential? response-body))
+          request   (assoc request :json json-body)
+          request   (if json-body (assoc request :body json-body) request)
+          response  (handler request)
+          body      (:body response)]
+      (if (or (map? body) (sequential? body))
         (-> response
-          (assoc :body (json/encode response-body))
+          (assoc :body (json/encode body))
           (resp/content-type "application/json; charset=utf-8")) 
         response))))
 
@@ -36,4 +38,4 @@
     (wrap-json)))
 
 (defn -main [& args]
-  (jetty/run-jetty (var app) {:port 8080 :join? false}))
+  (jetty/run-jetty (var app) {:port 3000 :join? false}))
