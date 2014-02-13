@@ -58,8 +58,8 @@
     },
     visible: function(d, selector) {
       waitUntil(selector, visible)
-        .done(function() { console.log("visible: ok"); d.resolve(); })
-        .fail(function() { console.log("visible: fail"); d.reject(); });
+        .done(function() { d.resolve(); })
+        .fail(d.reject);
     },
     invisible: function(d, selector) {
       waitUntil(selector, invisible)
