@@ -40,4 +40,5 @@
         (when (= (deref p 10000 :timeout) :timeout)
           (close-browser)
           (println "Browser timeout!")
-          (throw+ {:core/source :require-browser}))))))
+          (throw+ {:core/source :require-browser})))
+      (.addShutdownHook (Runtime/getRuntime) (Thread. close-browser)))))
