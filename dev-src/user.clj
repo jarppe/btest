@@ -9,4 +9,4 @@
 (browser/set-browser! :firefox "http://localhost:3000/btest/btest.html" "/")
 
 (defn run-tests [& opts]
-  (apply btest/run-tests ["todo.test.login-test"] opts))
+  (apply btest/run-tests ["todo.test.login-test" "todo.test.add-todos-test"] opts))

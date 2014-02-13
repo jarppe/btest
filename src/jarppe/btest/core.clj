@@ -15,7 +15,7 @@
   nil)
 
 (defn browser-command [response]
-  (when response
+  (when-not (empty? response)
     (when-let [c @current-command]
       (deliver (:promise c)
         (-> c
@@ -41,7 +41,7 @@
                        ".js"   "text/javascript"
                        ".css"  "text/css"}]
     (fn [resource-name]
-      (let [content-type (content-types (re-find #"\.\w+$" resource-name))
+      (let [content-type (content-types (re-find #"\.\w+$" resource-name) "text/plain")
             res (io/resource (str "btest/" resource-name))]
         (if res
           (-> res io/input-stream resp/response (resp/content-type content-type))

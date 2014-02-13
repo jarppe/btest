@@ -1,6 +1,5 @@
 (ns todo.test.login-test
-  (:require [jarppe.btest :refer :all]
-            [jarppe.btest.local-browser :as browser]))
+  (:require [jarppe.btest :refer :all]))
 
 (defn login [username password]
   (set-value "#login-username" username)

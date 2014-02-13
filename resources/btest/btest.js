@@ -109,6 +109,11 @@
         .done(function() { d.resolve(); })
         .fail(d.reject);
     },
+    text: function(d, selector, v) {
+      waitUntil(selector, visible, function($e) { console.log("text:", $e, $e.text()); return $e.text() === v; })
+        .done(function() { d.resolve(); })
+        .fail(d.reject);
+    },
     "set-hash": function(d, h) {
       hash(h);
       d.resolve();
