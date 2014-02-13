@@ -62,3 +62,5 @@
 (defcommand set-value [selector new-value])
 
 (defcommand ping [message])
+(defcommand load-app [url])
+(defcommand reload [])
