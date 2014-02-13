@@ -27,37 +27,9 @@
       {:status 200 :body {:status "command" :command (:name command) :args (:args command)}})
     {:status 200 :body {:status "timeout"}}))
 
-(defn submit [command-name args]
+(defn submit [{command-name :name args :args}]
   (let [p (promise)]
     (.put command-queue {:promise  p
                          :name     command-name
-                         :args     args
-                         :created  (System/currentTimeMillis)})
+                         :args     args})
     p))
-
-(defmacro fail! [fail-type message & [response]]
-  `(throw+ {::source       ::btest
-            :command-name  ~'command-name
-            :command       ~'r
-            :file          ~'file
-            :line          ~'line
-            :type          ~fail-type
-            :message       ~message
-            :response      ~response
-            :desc          (format "%s: [%s:%d] %s: %s"
-                             (apply str ~message)
-                             (or ~'file "NO_SOURCE_PATH") (or ~'line 0)
-                             ~'command-name
-                             (str ~response))}))
-
-(def ^:private timeout {:response {:status "timeout"}})
-
-(defn execute [command-name args & [file line]]
-  (let [p (submit command-name args)
-        r (deref p 2000 timeout)
-        s (get-in r [:response :status])]
-    (condp = s
-      "timeout" (fail! :timeout "timeout")
-      "fail"    (fail! :fail "fail" (get-in r [:response :result]))
-      "ok"      r
-      (fail! :error (str "unexpected status: '" s "'")))))

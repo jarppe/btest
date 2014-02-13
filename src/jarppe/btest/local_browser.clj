@@ -1,5 +1,7 @@
 (ns jarppe.btest.local-browser
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [slingshot.slingshot :refer [throw+]]
+            [jarppe.btest.core :as core]))
 
 (def common-browsers
   {"Mac OS X" {:firefox  "/Applications/Firefox.app/Contents/MacOS/firefox"
@@ -22,3 +24,20 @@
     (if-not (.exists (io/file app)) (throw (RuntimeException. (str "Browser '" app "' not found"))))
     (if-not (.canExecute (io/file app)) (throw (RuntimeException. (str "Browser '" app "' not executable"))))
     (reset! process (-> (ProcessBuilder. [app url]) (.start)))))
+
+(defonce browser-config (atom nil))
+
+(defn set-browser! [browser url]
+  (reset! browser-config {:browser browser :url url}))
+
+(defn require-browser []
+  (when-not @process
+    (let [{browser :browser url :url} @browser-config]
+      (assert (and browser url) "Must set browser configuration: set-browser!")
+      (core/clear!)
+      (open-browser browser url)
+      (let [p (core/submit {:name "ping" :args ["hello"] :file *file* :line 0})]
+        (when (= (deref p 10000 :timeout) :timeout)
+          (close-browser)
+          (println "Browser timeout!")
+          (throw+ {:core/source :require-browser}))))))
