@@ -25,27 +25,11 @@
           (resp/content-type "application/json; charset=utf-8")) 
         response))))
 
-(defn wrap-debug [handler]
-  (fn [{:keys [request-method uri] :as request}]
-    (println "REQ:" request-method uri)
-    (handler request)))
-
-(def resource
-  (let [content-types {".html" "text/html"
-                       ".js"   "text/javascript"
-                       ".css"  "text/css"}]
-    (fn [resource-name]
-      (let [content-type (content-types (re-find #"\.\w+$" resource-name))
-            res (-> resource-name io/resource)]
-        (if res
-          (-> res io/input-stream resp/response (resp/content-type content-type))
-          {:status 404 :body "not found"})))))
-
 (def app
   (-> (routes
-        (GET  "/" [] (resource "sample/index.html"))
+        (GET  "/" [] (resp/redirect "/index.html"))
         
-        (GET  "/btest/:res" [res] (resource (str "btest/" res)))
+        (GET  "/btest/:res" [res] (btest/resource res))
         (POST "/btest" {resp :body} (btest/browser-command resp))
         
         (route/resources "/" {:root "sample"})
