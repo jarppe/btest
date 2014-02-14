@@ -55,6 +55,7 @@
 (defcommand click      [selector])
 (defcommand url-hash   [expected-hash])
 (defcommand value      [selector expected-value])
+(defcommand text       [selector expected-text])
 
 (defcommand get-hash [])
 (defcommand set-hash [new-hash])
@@ -62,3 +63,5 @@
 (defcommand set-value [selector new-value])
 
 (defcommand ping [message])
+(defcommand load-app [url])
+(defcommand reload [])

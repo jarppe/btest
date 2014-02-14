@@ -1,9 +1,5 @@
-(ns todo-btest
-  (:require [jarppe.btest :refer :all]
-            [jarppe.btest.local-browser :as browser]))
-
-(comment
-  (browser/open-browser :firefox "http://localhost:8080/"))
+(ns todo.test.login-test
+  (:require [jarppe.btest :refer :all]))
 
 (defn login [username password]
   (set-value "#login-username" username)

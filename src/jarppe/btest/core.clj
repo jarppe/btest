@@ -1,5 +1,6 @@
 (ns jarppe.btest.core
-  (:require [slingshot.slingshot :refer [throw+]])
+  (:require [clojure.java.io :as io]
+            [slingshot.slingshot :refer [throw+]])
   (:import [java.util.concurrent LinkedBlockingDeque TimeUnit]))
 
 (set! *warn-on-reflection* true)
@@ -13,7 +14,7 @@
   nil)
 
 (defn browser-command [response]
-  (when response
+  (when-not (empty? response)
     (when-let [c @current-command]
       (deliver (:promise c)
         (-> c
@@ -33,3 +34,17 @@
                          :name     command-name
                          :args     args})
     p))
+
+(def resource
+  (let [content-types {".html" "text/html"
+                       ".js"   "text/javascript"
+                       ".css"  "text/css"}]
+    (fn [resource-name]
+      (let [content-type (content-types (re-find #"\.\w+$" resource-name) "text/plain")
+            res (io/resource (str "btest/" resource-name))]
+        (if res
+          {:status  200
+           :body    (io/input-stream res)
+           :headers {"Content-Type" content-type}}
+          {:status 404
+           :body "not found"})))))
