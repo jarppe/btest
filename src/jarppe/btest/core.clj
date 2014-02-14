@@ -1,6 +1,5 @@
 (ns jarppe.btest.core
   (:require [clojure.java.io :as io]
-            [ring.util.response :as resp]
             [slingshot.slingshot :refer [throw+]])
   (:import [java.util.concurrent LinkedBlockingDeque TimeUnit]))
 
@@ -44,5 +43,8 @@
       (let [content-type (content-types (re-find #"\.\w+$" resource-name) "text/plain")
             res (io/resource (str "btest/" resource-name))]
         (if res
-          (-> res io/input-stream resp/response (resp/content-type content-type))
-          {:status 404 :body "not found"})))))
+          {:status  200
+           :body    (io/input-stream res)
+           :headers {"Content-Type" content-type}}
+          {:status 404
+           :body "not found"})))))
