@@ -12,6 +12,22 @@
   
   console.log("btest: initializing...");
   
+  var $idle     = $("#head .idle"),
+      $testing  = $("#head .testing"),
+      $appDiv   = $("#app"),
+      appUrl    = null;
+
+  function loadApp(d, url) {
+    appUrl = url;
+    $appDiv.empty().append("<iframe id='appframe'>");
+    $("#appframe").attr("src", url).load(function() { d.resolve(); });
+  }
+  
+  function reload(d) { loadApp(d, appUrl); }
+  
+  function idle() { $testing.hide(); $idle.show(); }
+  function testing() { $idle.hide(); $testing.show(); }
+  
   function every(coll, p) {
     var i, len = coll.length;
     for (i = 0; i < len; i++) {
@@ -27,7 +43,7 @@
   function enabled(e)   { return !disabled(e); }
   
   function doWaitUntil(selector, checks, d, attempts) {
-    var element = selector && $(selector);
+    var element = selector && $("#appframe").contents().find(selector);
     if (every(checks, function(check) { return check(element); })) {
       d.resolve(element);
     } else {
@@ -51,6 +67,8 @@
   }
   
   var commands = {
+    "load-app": loadApp,
+    reload: reload,
     exists: function(d, selector) {
       waitUntil(selector, exists)
         .done(function() { d.resolve(); })
@@ -78,7 +96,7 @@
     },
     click: function(d, selector) {
       waitUntil(selector, visible, enabled)
-        .done(function(element) { console.log("click", element, element[0]); element[0].click(); d.resolve(); })
+        .done(function(element) { element[0].click(); d.resolve(); })
         .fail(d.reject);
     },
     "url-hash": function(d, h) {
@@ -88,6 +106,11 @@
     },
     value: function(d, selector, v) {
       waitUntil(selector, visible, function($e) { return $e.val() === v; })
+        .done(function() { d.resolve(); })
+        .fail(d.reject);
+    },
+    text: function(d, selector, v) {
+      waitUntil(selector, visible, function($e) { console.log("text:", $e, $e.text()); return $e.text() === v; })
         .done(function() { d.resolve(); })
         .fail(d.reject);
     },
@@ -114,16 +137,19 @@
   };
 
   var getNextCommand = {
-    url:          "/dev/btest",
+    url:          "/btest",
     type:         "POST",
-    data:         {},
     contentType:  "application/json; charset=utf-8",
     dataType:     "json"
   };
   
   function run() {
-    $.ajax(getNextCommand).then(handleResponse, handleFailure);
-    getNextCommand.data = {};
+    idle();
+    getNextCommand.data = JSON.stringify(getNextCommand.data || {});
+    $.ajax(getNextCommand)
+      .always(testing)
+      .then(handleResponse, handleFailure);
+    getNextCommand.data = null;
     return null;
   }
   
@@ -150,11 +176,11 @@
   }
   
   function success(result) {
-    getNextCommand.data = JSON.stringify({status: "ok", result: result});
+    getNextCommand.data = {status: "ok", result: result};
   }
 
   function failed(result) {
-    getNextCommand.data = JSON.stringify({status: "fail", result: result});
+    getNextCommand.data = {status: "fail", result: result};
   }
 
   function handleFailure() {

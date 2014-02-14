@@ -70,7 +70,7 @@
   false)
 
 (defn aborted []
-  (swap! report :abort true))
+  (swap! report assoc :aborted true))
 
 (defn run-test-done []
   (let [r        @report
